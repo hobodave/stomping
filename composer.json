@@ -1,0 +1,13 @@
+{
+    "name": "hobodave/stomping",
+    "description": "STOMP 1.x Library for PHP",
+    "authors": [
+        {
+            "name": "David Abdemoulaie",
+            "email": "dave@hobodave.com"
+        }
+    ],
+    "require": {
+
+    }
+}
