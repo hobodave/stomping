@@ -34,6 +34,19 @@ class Stomp
         $this->setTransport(null);
     }
 
+    public function isConnected()
+    {
+        $transport = null;
+
+        try {
+            $transport = $this->getTransport();
+        } catch (StompConnectionError $e) {
+            return false;
+        }
+
+        return is_null($transport) ? false : true;
+    }
+
     public function connect($headers = null, $versions = null, $host = null, $hearBeats = null, $connectTimeout = null, $connectedTimeout = null)
     {
         $transport = null;
