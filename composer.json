@@ -1,5 +1,5 @@
 {
-    "name": "hobodave/stomping",
+    "name": "stomping/stomping",
     "description": "STOMP 1.x Library for PHP",
     "authors": [
         {
@@ -8,6 +8,10 @@
         }
     ],
     "require": {
-
+        "php": ">=5.3.0",
+        "monolog/monolog": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {"Stomping": "src/"}
     }
 }
