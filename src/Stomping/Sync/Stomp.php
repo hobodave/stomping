@@ -94,7 +94,9 @@ class Stomp
             throw new StompProtocolError("STOMP session connect failed [timeout={$timeout}]");
         }
 
-        $frame = $this->receiveFrame();
+        do {
+            $frame = $this->receiveFrame();
+        } while ($frame instanceof \Stomping\Protocol\StompHeartBeat);
         $this->getSession()->connected($frame);
         // $this->log->info("STOMP session established with broker {$this->getTransport()}");
 

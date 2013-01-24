@@ -24,6 +24,7 @@ class StompFrameTransport
     {
         $errno = null;
         $errstr = null;
+        $timeout = is_null($timeout) ? ini_get('default_socket_timeout') : $timeout;
         $this->_socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, $timeout);
 
         if (false === $this->_socket) {

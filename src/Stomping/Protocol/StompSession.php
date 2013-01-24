@@ -2,7 +2,6 @@
 
 namespace Stomping\Protocol;
 
-use Stomping\Protocol\Commands;
 use Stomping\Error\StompProtocolError;
 
 class StompSession
