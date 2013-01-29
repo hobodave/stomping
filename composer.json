@@ -1,11 +1,16 @@
 {
     "name": "stomping/stomping",
+    "type":"library",
     "description": "STOMP 1.x Library for PHP",
+    "keywords":["stomp","messaging","activemq"],
+    "homepage":"https://github.com/hobodave/stomping",
     "license":"BSD-2-Clause",
     "authors": [
         {
             "name": "David Abdemoulaie",
-            "email": "dave@hobodave.com"
+            "email": "dave@hobodave.com",
+            "homepage": "http://hobodave.com",
+            "role": "Developer"
         }
     ],
     "require": {
