@@ -1,6 +1,7 @@
 {
     "name": "stomping/stomping",
     "description": "STOMP 1.x Library for PHP",
+    "license":"BSD-2-Clause",
     "authors": [
         {
             "name": "David Abdemoulaie",
