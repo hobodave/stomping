@@ -22,8 +22,8 @@ class Commands
      * @param array $versions
      * @param string $host
      * @param array $heartBeats
-     * @throws \Stomping\Error\StompProtocolError
-     * @return \Stomping\Protocol\StompFrame
+     * @throws StompProtocolError
+     * @return StompFrame
      */
     public static function stomp($login = null, $passcode = null, $headers = null, $versions = null, $host = null, $heartBeats = null)
     {
@@ -41,8 +41,8 @@ class Commands
      * @param array $versions
      * @param string $host
      * @param array $heartBeats
-     * @return \Stomping\Protocol\StompFrame
-     * @throws \Stomping\Error\StompProtocolError
+     * @return StompFrame
+     * @throws StompProtocolError
      */
     public static function connect($login = null, $passcode = null, $headers = null, $versions = null, $host = null, $heartBeats = null)
     {
@@ -95,7 +95,7 @@ class Commands
 
     /**
      * @param string $receipt
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function disconnect($receipt = null)
     {
@@ -111,7 +111,7 @@ class Commands
      * @param string $body
      * @param array $headers
      * @param string $receipt
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function send($destination, $body = '', $headers = null, $receipt = null)
     {
@@ -127,8 +127,8 @@ class Commands
      * @param array $headers
      * @param string $receipt
      * @param string $version
+     * @throws \Exception|StompProtocolError
      * @return array
-     * @throws \Stomping\Error\StompProtocolError
      */
     public static function subscribe($destination, $headers, $receipt = null, $version = null)
     {
@@ -158,8 +158,8 @@ class Commands
      * @param array $token
      * @param string $receipt
      * @param string $version
-     * @return \Stomping\Protocol\StompFrame
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws \Exception|StompProtocolError
+     * @return StompFrame
      */
     public static function unsubscribe($token, $receipt = null, $version = null)
     {
@@ -184,7 +184,7 @@ class Commands
      * @param array $transactions
      * @param string $receipt
      * @param string $version
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function ack(StompFrame $frame, $transactions = null, $receipt = null, $version = null)
     {
@@ -199,8 +199,8 @@ class Commands
      * @param array $transactions
      * @param string $receipt
      * @param string $version
-     * @return \Stomping\Protocol\StompFrame
-     * @throws \Stomping\Error\StompProtocolError
+     * @return StompFrame
+     * @throws StompProtocolError
      */
     public static function nack(StompFrame $frame, $transactions = null, $receipt = null, $version = null)
     {
@@ -217,7 +217,7 @@ class Commands
     /**
      * @param string $transaction
      * @param string $receipt
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function begin($transaction, $receipt = null)
     {
@@ -230,7 +230,7 @@ class Commands
     /**
      * @param string $transaction
      * @param string $receipt
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function abort($transaction, $receipt = null)
     {
@@ -243,7 +243,7 @@ class Commands
     /**
      * @param string $transaction
      * @param string $receipt
-     * @return \Stomping\Protocol\StompFrame
+     * @return StompFrame
      */
     public static function commit($transaction, $receipt = null)
     {
@@ -255,8 +255,8 @@ class Commands
 
     /**
      * @param string $version
-     * @return \Stomping\Protocol\StompHeartBeat
-     * @throws \Stomping\Error\StompProtocolError
+     * @return StompHeartBeat
+     * @throws StompProtocolError
      */
     public static function beat($version = null)
     {
@@ -275,7 +275,7 @@ class Commands
      * @param StompFrame $frame
      * @param array $versions
      * @return array [$version, $server, $id, $heartBeats]
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws StompProtocolError
      */
     public static function connected(StompFrame $frame, $versions = null)
     {
@@ -343,10 +343,10 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param string $version
+     * @throws \Exception|\Stomping\Error\StompProtocolError
      * @return array Subscription Token [dest/sub header, value]
-     * @throws \Stomping\Error\StompProtocolError
      */
     public static function message(StompFrame $frame, $version)
     {
@@ -372,7 +372,7 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param string $version
      * @return string
      */
@@ -386,7 +386,7 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param string $version
      */
     public static function error(StompFrame $frame, $version)
@@ -398,7 +398,7 @@ class Commands
     /**
      * @param string $version
      * @return string
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws StompProtocolError
      */
     public static function version($version = null)
     {
@@ -435,7 +435,7 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param array $transactions
      * @param string $version
      * @return array
@@ -464,9 +464,9 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param string $receipt
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws StompProtocolError
      */
     protected static function addReceiptHeader(StompFrame $frame, $receipt)
     {
@@ -485,9 +485,9 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param array $commands
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws StompProtocolError
      */
     protected static function checkCommand(StompFrame $frame, $commands = array())
     {
@@ -504,11 +504,11 @@ class Commands
     }
 
     /**
-     * @param \Stomping\Protocol\StompFrame $frame
+     * @param StompFrame $frame
      * @param string $header
      * @param string $version
      * @return string
-     * @throws \Stomping\Error\StompProtocolError
+     * @throws StompProtocolError
      */
     protected static function checkHeader(StompFrame $frame, $header, $version = null)
     {

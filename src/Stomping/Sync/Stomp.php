@@ -2,15 +2,17 @@
 
 namespace Stomping\Sync;
 
+use Psr\Log\LogLevel;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Stomping\StompConfig;
 use Stomping\Error\StompConnectionError;
 use Stomping\Error\StompProtocolError;
 use Stomping\Protocol\StompFailoverTransport;
 use Stomping\Protocol\StompSession;
 use Stomping\Protocol\Commands;
-use Monolog;
 
-class Stomp
+class Stomp implements LoggerAwareInterface, LoggerInterface
 {
     protected $_config;
 
@@ -23,11 +25,13 @@ class Stomp
     /** @var StompFrameTransport */
     protected $_transport;
 
+    /** @var  LoggerInterface */
+    protected $logger;
+
     protected $_messages = array();
 
     public function __construct(StompConfig $config)
     {
-//        $this->log = Log::getLogger(LOG_CATEGORY);
         $this->_config = $config;
         $this->_session = new StompSession($this->_config->version, $this->_config->check);
         $this->_failover = new StompFailoverTransport($config->uri);
@@ -65,21 +69,21 @@ class Stomp
                 list($broker, $connectDelay) = $brokerDelayPair;
                 $transport = new StompFrameTransport($broker['host'], $broker['port'], $this->getSession()->version);
                 if ($connectDelay) {
-                    // $this->log->debug(sprintf('Delaying connect attempt for %d ms', (int) ($connectDelay * 1000)));
+                    $this->debug(sprintf('Delaying connect attempt for %d ms', (int) ($connectDelay * 1000)));
                     usleep($connectDelay);
                 }
                 // $this->log->info("Connecting to {$transport} ...");
                 try {
                     $transport->connect($connectTimeout);
-                    // $this->log->info('Connection established');
+                    $this->info('Connection established');
                     $this->setTransport($transport);
                     $this->_connect($headers, $versions, $host, $hearBeats, $connectedTimeout);
                 } catch (StompConnectionError $e) {
-                    // $this->log->warning("Could not connect to %s [%s]" % ($transport, $e))
+                    $this->warning(sprintf("Could not connect to %s [%s]", $transport, $e));
                 }
             }
         } catch (StompConnectionError $e) {
-            // $this->log->error(sprintf("Reconnect failed [%s]", $e));
+            $this->error(sprintf("Reconnect failed [%s]", $e));
             throw $e;
         }
     }
@@ -98,11 +102,11 @@ class Stomp
             $frame = $this->receiveFrame();
         } while ($frame instanceof \Stomping\Protocol\StompHeartBeat);
         $this->getSession()->connected($frame);
-        // $this->log->info("STOMP session established with broker {$this->getTransport()}");
+        $this->info("STOMP session established with broker {$this->getTransport()}");
 
         foreach ($this->getSession()->replay() as $destHeadersRecptSet) {
             list($destination, $headers, $receipt) = $destHeadersRecptSet;
-            // $this->log->info('Replaying subscription %s' % $headers);
+            $this->info(sprintf('Replaying subscription %s', $headers));
             $this->subscribe($destination, $headers, $receipt);
         }
     }
@@ -256,7 +260,7 @@ class Stomp
             $frame = $this->getTransport()->receive();
             $this->getSession()->received();
 
-            // $this->log->debug('Received %s' % $frame->info());
+            $this->debug('Received ' . $frame->info());
 
             if ($frame) {
                 $this->_messages[] = $frame;
@@ -267,7 +271,7 @@ class Stomp
 
     public function sendFrame($frame)
     {
-        // $this->log->debug('Sending %s' % $frame->info());
+        $this->debug('Sending ' . $frame->info());
         $this->getTransport()->send($frame);
         $this->getSession()->sent();
     }
@@ -332,5 +336,140 @@ class Stomp
     public function getServerHeartBeat()
     {
         return $this->getSession()->serverHeartBeat;
+    }
+
+    /**
+     * Sets a logger instance on the object
+     *
+     * @param LoggerInterface $logger
+     * @return null
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * System is unusable.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function emergency($message, array $context = array())
+    {
+        $this->log(LogLevel::EMERGENCY, $message, $context);
+    }
+
+    /**
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc. This should
+     * trigger the SMS alerts and wake you up.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function alert($message, array $context = array())
+    {
+        $this->log(LogLevel::ALERT, $message, $context);
+    }
+
+    /**
+     * Critical conditions.
+     *
+     * Example: Application component unavailable, unexpected exception.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function critical($message, array $context = array())
+    {
+        $this->log(LogLevel::CRITICAL, $message, $context);
+    }
+
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function error($message, array $context = array())
+    {
+        $this->log(LogLevel::ERROR, $message, $context);
+    }
+
+    /**
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things
+     * that are not necessarily wrong.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function warning($message, array $context = array())
+    {
+        $this->log(LogLevel::WARNING, $message, $context);
+    }
+
+    /**
+     * Normal but significant events.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function notice($message, array $context = array())
+    {
+        $this->log(LogLevel::NOTICE, $message, $context);
+    }
+
+    /**
+     * Interesting events.
+     *
+     * Example: User logs in, SQL logs.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function info($message, array $context = array())
+    {
+        $this->log(LogLevel::INFO, $message, $context);
+    }
+
+    /**
+     * Detailed debug information.
+     *
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function debug($message, array $context = array())
+    {
+        $this->log(LogLevel::DEBUG, $message, $context);
+    }
+
+    /**
+     * Logs with an arbitrary level.
+     *
+     * @param mixed $level
+     * @param string $message
+     * @param array $context
+     * @return null
+     */
+    public function log($level, $message, array $context = array())
+    {
+        if (is_null($this->logger)) {
+            return;
+        }
+
+        $this->logger->log($level, $message, $context);
     }
 }

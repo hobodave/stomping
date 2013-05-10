@@ -10,7 +10,7 @@ use Stomping\Protocol\StompSpec;
  */
 class StompFrame
 {
-    const INFO_LENGTH = 20;
+    const INFO_LENGTH = 40;
 
     /** @var string */
     public $command = '';
